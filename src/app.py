@@ -22,3 +22,11 @@ def register():
 def logout():
     return render_template('logout.html')
 
+@app.get('/about_us', strict_slashes=False)
+def about_us():
+    return render_template('about_us.html')
+
+@app.get('/features', strict_slashes=False)
+def features():
+    return render_template('features.html')
+
