@@ -36,3 +36,6 @@ def add_cors_headers(response):
     response.headers.add("Access-Control-Allow-Headers", "Content-Type,Accepts,Authorization,x-token,x-requested-with")
     response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE")
     return response
+
+    if __name__ == '__main__':
+        app.run()
