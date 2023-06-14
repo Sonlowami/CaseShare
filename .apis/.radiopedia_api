@@ -1,5 +1,12 @@
+#An authorization code is a temporary code that is exchanged for an access token in the OAuth 2.0 authentication flow. 
+#It is typically obtained by the client application after the user has granted permission to access their resources.
 Authorization_code: 19d340921fe1467692ca29e9ffa7b43bba5b108651f0cf2847053fb24859df8c
+
+#An application ID, also known as a client ID, is a unique identifier assigned to a specific application or client by the API provider. 
+#It is used during the authentication process to identify the client application. 
 Application_id: 26bcf3cd0da748d1bac87fced78785f77150ec952589a9018970e4a084642da7
 
+#A secret, also referred to as a client secret or client password, is a confidential value associated with the application ID. 
+#It serves as a form of authentication to prove that the client application is authorized to access the API.
 Secret: 241265419e438175043d57114afe124c35ab6612878b89bcb8f36374d6a9464b
 
