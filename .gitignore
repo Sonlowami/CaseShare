@@ -1,2 +1,5 @@
-**/__pycache__/**
-*case_env/*
+**/__pycache__/*
+caseenv
+.vscode
+.env
+pyvenv.cfg
