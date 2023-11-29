@@ -7,13 +7,12 @@ from flask import jsonify, abort, request
 from api.v1.views import api_views
 from models.user import User
 from models.post import Post
-from models import storage
 
 @api_views.get('/posts', strict_slashes=False)
 @token_required
 def get_posts(email):
     """Get all posts in the database."""
-    posts =  storage.all(Post)
+    posts =  Post.all(Post)
     try:
         return jsonify([post.to_dict() for post in posts]), 200
     except AttributeError:
@@ -22,7 +21,7 @@ def get_posts(email):
 @api_views.get('/posts/<string:id>', strict_slashes=False)
 @token_required
 def get_post(email, id):
-    post = storage.get(Post, id)
+    post = Post.get(Post, id)
     try:
         return jsonify(post.to_dict()), 200
     except AttributeError:
@@ -31,7 +30,7 @@ def get_post(email, id):
 @api_views.get('/users/<string:id>/posts', strict_slashes=False)
 @token_required
 def get_posts_by_user(email, id):
-    user = storage.get(User, id)
+    user = User.get(User, id)
     try:
         posts = user.posts
         return jsonify([post.to_dict() for post in posts]), 200
@@ -42,7 +41,7 @@ def get_posts_by_user(email, id):
 @token_required
 def post_something(email):
     try:
-        user_id = storage.get_user_by_email(email).id
+        user_id = User.get_user_by_email(email).id
         data = request.get_json()
         title = data.get('title')
         content = data.get('content')
@@ -61,9 +60,9 @@ def post_something(email):
 def edit_post(email, id):
     """Edit the published content"""
     try:
-        user = storage.get_user_by_email(email)
+        user = User.get_user_by_email(email)
         data = request.get_json()
-        post = storage.get(Post, id)
+        post = Post.get(Post, id)
         title = data.get('title', post.title)
         content = data.get('content', post.content)
         if post.user_id == user.id:
@@ -80,8 +79,8 @@ def edit_post(email, id):
 @api_views.delete('/posts/<string:id>', strict_slashes=False)
 @token_required
 def delete_post(email, id):
-    user = storage.get_user_by_email(email)
-    post = storage.get(Post, id)
+    user = User.get_user_by_email(email)
+    post = Post.get(Post, id)
     try:
         if post.user_id == user.id:
             post.delete()
