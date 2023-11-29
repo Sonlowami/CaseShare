@@ -1,13 +1,22 @@
 #!/usr/bin/python3
 from flask import Flask, jsonify, render_template
 from flasgger import Swagger
-from models import storage
 from api.v1.views import api_views
 from api.v1.views.decorators import token_required
 from flasgger import Swagger
+from dotenv import load_dotenv
+from utils.database import db
+from utils.config import Config
+
+
+load_dotenv()
 
 app = Flask(__name__)
+
+app.url_map.strict_slashes = False
+app.config.from_object(Config)
 app.register_blueprint(api_views)
+db.init_app(app)
 
 @app.after_request
 def add_cors_headers(response):

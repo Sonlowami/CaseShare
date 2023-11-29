@@ -8,7 +8,6 @@ from os import environ
 from api.v1.views import api_views
 from datetime import timedelta, datetime
 from models.user import User
-from models import storage
 from flasgger.utils import swag_from
 from .decorators import token_required
 
@@ -22,7 +21,7 @@ def login():
         auth = request.get_json()
         if not auth or not auth.get('email') or not auth.get('password'):
             return jsonify({'error': 'You must provide email and password'}), 400
-        user = storage.get_user_by_email(auth.get('email'))
+        user = User.get_user_by_email(auth.get('email'))
         if not user:
             # user does not exist in the database
             return({'error': 'email doesnot exist'}), 400
@@ -66,7 +65,7 @@ def register():
 @token_required
 def get_users(email=None):
     """Retrieve all user from the database"""
-    users = storage.all(User)
+    users = User.all(User)
     return jsonify([user.to_dict() for user in users]), 200
 
 @api_views.get('/users/myself', strict_slashes=False)
@@ -74,7 +73,7 @@ def get_users(email=None):
 @token_required
 def get_myself(email=None):
     if email:
-        user = storage.get_user_by_email(email)
+        user = User.get_user_by_email(email)
         return jsonify(user.to_dict()), 200
 
 @api_views.get('/users/<string:id>', strict_slashes=False)
@@ -82,7 +81,7 @@ def get_myself(email=None):
 @token_required
 def get_user(email, id):
     """Get a user by id"""
-    user = storage.get(User, id)
+    user = User.get(User, id)
     try:
         return jsonify(user.to_dict()), 200
     except AttributeError:
@@ -93,7 +92,7 @@ def get_user(email, id):
 @token_required
 def update_myself(email):
     """Make changes to information stored under the same user"""
-    user = storage.get_user_by_email(email)
+    user = User.get_user_by_email(email)
     try:
         data = request.get_json()
         user.title = data.get('title', user.title)
@@ -103,7 +102,7 @@ def update_myself(email):
         user.email = data.get('email', user.email)
         user.phone = data.get('phone', user.phone)
         user.save()
-        storage.reload()
+        User.reload()
         return jsonify(user.to_dict()), 200
     except AttributeError:
         return jsonify({'error': 'Not Found'}), 404
@@ -115,7 +114,7 @@ def update_myself(email):
 @token_required
 def change_password(email):
     """Change, not reset password"""
-    user = storage.get_user_by_email(email)
+    user = User.get_user_by_email(email)
     try:
         data = request.get_json()
         old_password = data.get('old_password')
@@ -137,7 +136,7 @@ def change_password(email):
 @token_required
 def reset_password(email):
     """Reset password"""
-    user = storage.get_user_by_email(email)
+    user = User.get_user_by_email(email)
     try:
         new_password = request.get_json().get('new_password')
         user.__setattr__('password', new_password)
@@ -152,7 +151,7 @@ def reset_password(email):
 @token_required
 def delete_user(email):
     """Delete a user's account"""
-    user = storage.get_user_by_email(email)
+    user = User.get_user_by_email(email)
     try:
         user.delete()
         return jsonify({}), 204

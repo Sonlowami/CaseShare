@@ -3,7 +3,6 @@
 from flask import jsonify, request
 from api.v1.views import app_views
 from api.v1.views.decorators import token_required
-from models import storage
 from models.user import User
 from models.like import Like
 from models.post import Post
@@ -12,7 +11,7 @@ from models.post import Post
 @token_required
 def get_likes(email, post_id):
     """Get the number of all likes"""
-    likes = storage.get(Post, post_id).likes
+    likes = Post.get(Post, post_id).likes
     try:
         return jsonify([like.to_dict() for like in likes]), 200
     except AttributeError:
@@ -23,8 +22,8 @@ def get_likes(email, post_id):
 @token_required
 def create_like(email, post_id):
     """Create a new like for an object"""
-    user_id = storage.get_user_by_email(email).id
+    user_id = Post.get_user_by_email(email).id
     new_like = Like(user_id=user_id, post_id=post_id)
     new_like.save()
-    likes = storage.get(Post, post_id).likes
+    likes = Post.get(Post, post_id).likes
     return jsonify([like.to_dict() for like in likes]), 201
