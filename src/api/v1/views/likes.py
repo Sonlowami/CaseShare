@@ -2,7 +2,7 @@
 """Create APIs for likes"""
 from flask import jsonify, request
 from api.v1.views import app_views
-from api.v1.views.decorators import token_required
+from utils.decorators import token_required
 from models.user import User
 from models.like import Like
 from models.post import Post
