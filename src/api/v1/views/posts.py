@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Define endpoints to access posts"""
 from datetime import datetime
-from api.v1.views.decorators import token_required
+from utils.decorators import token_required
 from json import JSONDecodeError
 from flask import jsonify, abort, request
 from api.v1.views import api_views

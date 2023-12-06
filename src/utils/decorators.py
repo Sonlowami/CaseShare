@@ -15,7 +15,8 @@ def token_required(f):
     """Checks if a token is passed by the front-end to the endpoint"""
     @wraps(f)
     def decorator(*args, **kwargs):
-        token = request.headers.get('x-token') or request.args.get('x-token')
+        token = request.headers.get('Authorization') or request.args.get('Authorization')
+        token = token.split(' ')[1].strip() if token else None
         try:
             data = jwt.decode(token, SECRET_KEY, algorithms='HS256')
             user_email = data['email']

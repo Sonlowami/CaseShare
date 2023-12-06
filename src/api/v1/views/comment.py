@@ -6,7 +6,7 @@ from api.v1.views import api_views
 from models.comment import Comment
 from models.post import Post
 from models.user import User
-from api.v1.views.decorators import token_required
+from utils.decorators import token_required
 
 @api_views.get('/posts/<string:id>/comments', strict_slashes=False)
 def get_comments(id):
