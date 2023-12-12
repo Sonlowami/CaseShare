@@ -113,5 +113,4 @@ def delete_user(email):
         user.delete()
         return jsonify({}), 204
     except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404
-    
+        return jsonify({'error': 'Not Found'}), 404    
