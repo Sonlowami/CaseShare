@@ -49,6 +49,19 @@ class BaseModel:
         except Exception as e:
             print(e)
             return False
+        
+    def update(self, **kwargs):
+        """Update the object if the kwargs belong to columns of the table"""
+        try:
+            for k, v in kwargs.items():
+                if k in self.__table__.columns.keys():
+                    self.__dict__[k] = v
+                    self.update_at = datetime.now()
+            db.session.add(self)
+            db.session.commit()
+            return True
+        except Exception:
+            return False
 
     def delete(self):
         """Delete an object from the database"""
@@ -59,4 +72,3 @@ class BaseModel:
         except Exception as e:
             print(e)
             return False
-                          
