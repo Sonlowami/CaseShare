@@ -80,3 +80,15 @@ def change_password(email):
         return jsonify({'error': 'Not Found'}), 404
     except Exception:
         return jsonify({'error': 'Not a JSON'}), 400
+
+
+@api_views.delete('/users/me', strict_slashes=False)
+@token_required
+def delete_user(email):
+    """Delete a user's account"""
+    user = User.get_user_by_email(email)
+    try:
+        user.delete()
+        return jsonify({}), 204
+    except AttributeError:
+        return jsonify({'error': 'Not Found'}), 404
