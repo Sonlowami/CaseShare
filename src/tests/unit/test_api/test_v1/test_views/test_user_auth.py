@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from api.v1.views.user_auth import login, register
 from api.v1.app import test_client
 
 class TestLoginEndpoint(unittest.TestCase):
