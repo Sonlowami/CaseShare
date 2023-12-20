@@ -24,19 +24,19 @@ def login():
         user = User.get_user_by_email(auth.get('email'))
         if not user:
             # user does not exist in the database
-            return({'error': 'email doesnot exist'}), 400
+            return jsonify({'error': 'user doesnot exist'}), 404
         if check_password_hash(user.password, auth.get('password')):
             # information is valid and user exists
             token = jwt.encode({'email': auth.get('email'), 'exp': datetime.utcnow() + timedelta(hours=24)}, SECRET_KEY)
             response = make_response(jsonify(
-                {'token': token, 'redirectUrl': 'http://0.0.0.0:5001/home'}
+                {'token': token, 'redirectUrl': '/api/v1/'}
                 ), 200)
             return response
         else:
-            return jsonify({'error': 'Invalid password'}), 400
+            return jsonify({'error': 'invalid password'}), 400
     except Exception as e:
         print(e)
-        return jsonify({'error': 'Not a JSON'}), 400
+        return jsonify({'error': 'not a JSON'}), 400
 
 @api_views.post('/users/auth/register', strict_slashes=False)
 @swag_from('documentation/users/register.yml', methods=['POST'])
@@ -58,10 +58,10 @@ def register():
         new_user.save()
         return jsonify({'email': new_user.email}), 201
     except KeyError:
-        return jsonify({'error': 'Missing some data'}), 400
+        return jsonify({'error': 'missing some data'}), 400
     except TypeError as err:
         print(err)
-        return jsonify({'error': 'Not a JSON'}), 400
+        return jsonify({'error': 'not a JSON'}), 400
 
     
 @api_views.post('/users/auth/forgot_password')
@@ -81,9 +81,9 @@ def forgot_password():
                 "token": f'{request.host_url}api/v1/users/auth/reset_password/{token}'
             }), 200
         else:
-            return jsonify({'error': 'Not Found'}), 404
+            return jsonify({'error': 'user doesnot exist'}), 404
     except Exception:
-        return jsonify({'error': 'Not a JSON'}), 400
+        return jsonify({'error': 'not a JSON'}), 400
 
 @api_views.post('/users/auth/reset_password/<string:token>')
 @swag_from('documentation/users/reset_password.yml', methods=['POST'])
@@ -96,21 +96,11 @@ def reset_password(token):
         user.__setattr__('password', new_password)
         user.save()
         return jsonify({
-            "message": "Password reset successful"
+            "message": "Password reset successfully"
         }), 200
     except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404
+        return jsonify({'error': 'user doesnot exist'}), 404
     except Exception as e:
-        print(e)
-        return jsonify({'error': 'Not a JSON'}), 400
-
-@api_views.delete('/users/me', strict_slashes=False)
-@token_required
-def delete_user(email):
-    """Delete a user's account"""
-    user = User.get_user_by_email(email)
-    try:
-        user.delete()
-        return jsonify({}), 204
-    except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404    
+        print(e.__str__())
+        return jsonify({'error': 'not a JSON'}), 400
+ 

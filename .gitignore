@@ -2,3 +2,4 @@
 caseenv/
 src/.env
 pyvenv.cfg
+.secrets/
