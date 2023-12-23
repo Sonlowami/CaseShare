@@ -160,12 +160,11 @@ class TestLoginEndpoint(unittest.TestCase):
     @patch('api.v1.views.user_auth.jwt.decode')
     @patch('api.v1.views.user_auth.jsonify')
     @patch('models.User.get_user_by_email')
-    @patch('models.User.save')
-    def test_reset_password_with_valid_data(self, mock_save, mock_get, mock_jsonify, mock_decode):
+    def test_reset_password_with_valid_data(self, mock_get, mock_jsonify, mock_decode):
         """Test if reset password works as intended if all right data is provided"""
         mock_decode.return_value = { 'email': 'abc@example.com'}
         mock_get.return_value = MagicMock(email='abc@example.com')
-        mock_save.return_value = True
+        mock_save = mock_get.return_value.save
 
         response = self.client.post('/api/v1/users/auth/reset_password/some-token', json={
             'new_password': 'randomint'
@@ -174,6 +173,7 @@ class TestLoginEndpoint(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         mock_jsonify.assert_called_once_with({'message': "Password reset successfully"})
         mock_decode.assert_called_once()
+        mock_save.assert_called_once()
 
     
     @patch('api.v1.views.user_auth.jwt.decode')
