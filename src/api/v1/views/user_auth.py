@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 """This file contain views that define endpoints used to interact with user
 authentication."""
-from flask import jsonify, request, redirect, make_response
+from flask import jsonify, request, make_response
 import jwt
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 from os import environ
 from api.v1.views import api_views
 from datetime import timedelta, datetime
@@ -34,8 +34,7 @@ def login():
             return response
         else:
             return jsonify({'error': 'invalid password'}), 400
-    except Exception as e:
-        print(e)
+    except Exception:
         return jsonify({'error': 'not a JSON'}), 400
 
 @api_views.post('/users/auth/register', strict_slashes=False)
@@ -59,8 +58,7 @@ def register():
         return jsonify({'email': new_user.email}), 201
     except KeyError:
         return jsonify({'error': 'missing some data'}), 400
-    except TypeError as err:
-        print(err)
+    except TypeError:
         return jsonify({'error': 'not a JSON'}), 400
 
     
@@ -100,7 +98,6 @@ def reset_password(token):
         }), 200
     except AttributeError:
         return jsonify({'error': 'user doesnot exist'}), 404
-    except Exception as e:
-        print(e.__str__())
+    except Exception:
         return jsonify({'error': 'not a JSON'}), 400
  
