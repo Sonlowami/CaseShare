@@ -46,8 +46,7 @@ class BaseModel:
             db.session.add(self)
             db.session.commit()
             return True
-        except Exception as e:
-            print(e)
+        except Exception:
             return False
         
     def update(self, **kwargs):
@@ -69,6 +68,5 @@ class BaseModel:
             db.session.delete(self)
             db.session.commit()
             return True
-        except Exception as e:
-            print(e)
+        except Exception:
             return False

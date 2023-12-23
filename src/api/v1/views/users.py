@@ -15,16 +15,27 @@ from utils.decorators import token_required
 @token_required
 def get_users(email=None):
     """Retrieve all user from the database"""
-    users = User.query.all()
-    return jsonify([user.to_dict() for user in users]), 200
+    try:
+        page = int(request.args.get('page', 0))
+        limit = 20
+        offset = page * limit
+        users = User.query.offset(offset).limit(limit).all()
+        return jsonify([user.to_dict() for user in users]), 200
+    except ValueError:
+        return jsonify({'error': 'Invalid page number'}), 400
+    except Exception:
+        return jsonify({'error': 'Not Found'}), 404
 
 @api_views.get('/users/me', strict_slashes=False)
 @swag_from('documentation/users/get_myself.yml', methods=['GET'])
 @token_required
 def get_myself(email=None):
-    if email:
-        user = User.get_user_by_email(email)
-        return jsonify(user.to_dict()), 200
+    try:
+        if email:
+            user = User.get_user_by_email(email)
+            return jsonify(user.to_dict()), 200
+    except AttributeError:
+        return jsonify({'error': 'Not Found'}), 404
 
 @api_views.get('/users/<string:id>', strict_slashes=False)
 @swag_from('documentation/users/get_user.yml', methods=['GET'])
@@ -56,8 +67,8 @@ def update_myself(email):
         return jsonify(user.to_dict()), 200
     except AttributeError:
         return jsonify({'error': 'Not Found'}), 404
-    except Exception as e:
-        return jsonify({'error': 'Not a JSON'}), 400
+    except Exception:
+        return jsonify({'error': 'not a JSON'}), 400
     
 @api_views.put('/users/me/change_password', strict_slashes=False)
 @swag_from('documentation/users/change_password.yml', methods=['PUT'])
@@ -67,19 +78,19 @@ def change_password(email):
     user = User.get_user_by_email(email)
     try:
         data = request.get_json()
-        old_password = data.get('old_password')
-        new_password = data.get('new_password')
+        old_password = data['old_password']
+        new_password = data['new_password']
         if user.password == generate_password_hash(old_password):
             # The user does know the old password
             user.__setattr__('password', new_password)
             user.save()
             return jsonify({}), 200
         else:
-            return jsonify({'error': 'Invalid Password'}), 403
-    except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404
+            return jsonify({'error': 'invalid password'}), 400
+    except AttributeError as e:
+        return jsonify({'error': 'not found'}), 404
     except Exception:
-        return jsonify({'error': 'Not a JSON'}), 400
+        return jsonify({'error': 'not a JSON'}), 400
 
 
 @api_views.delete('/users/me', strict_slashes=False)
