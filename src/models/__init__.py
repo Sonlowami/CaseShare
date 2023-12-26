@@ -1,8 +1,13 @@
 #!/usr/bin/python3
 """
-initialize the models package
+init file for models
 """
-
-from .engine.db_storage import DBStorage
-storage = DBStorage()
-storage.reload()
+from models.comment import Comment
+from models.user import User
+from models.direct_message import Message
+from models.document import Document
+from models.image import Image
+from models.post import Post
+from models.like import Like
+from models.video import Video
+from utils.database import db

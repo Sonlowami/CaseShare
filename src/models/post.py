@@ -1,15 +1,14 @@
 #!/usr/bin/python
 """hold class post """
-from .base_model import BaseModel, Base
-from sqlalchemy import Column, String, ForeignKey, Table, DateTime
-from sqlalchemy.orm import relationship
+from .base_model import BaseModel
+from utils.database import db
 
 
-class Post(BaseModel, Base):
+class Post(BaseModel, db.Model):
     """Reperesentation of post"""
     __tablename__ = "posts"
-    user_id = Column(String(60), ForeignKey("users.id"), nullable=False)
-    title = Column(String(128), nullable=False)
-    content = Column(String(2048), nullable=False)
-    comments = relationship("Comment", backref="post", cascade="all, delete, delete-orphan")
-    likes = relationship("Like", backref="like", cascade="all, delete, delete, delete-orphan")
+    user_id = db.Column(db.String(60), db.ForeignKey("users.id"), nullable=False)
+    title = db.Column(db.String(128), nullable=False)
+    content = db.Column(db.String(2048), nullable=False)
+    comments = db.relationship("Comment", backref="post", cascade="all, delete, delete-orphan")
+    likes = db.relationship("Like", backref="like", cascade="all, delete, delete, delete-orphan")

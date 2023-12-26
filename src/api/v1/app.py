@@ -1,13 +1,29 @@
 #!/usr/bin/python3
 from flask import Flask, jsonify, render_template
 from flasgger import Swagger
-from models import storage
 from api.v1.views import api_views
-from api.v1.views.decorators import token_required
+from utils.decorators import token_required
 from flasgger import Swagger
+from dotenv import load_dotenv
+from utils.database import db
+from utils.config import Config
+
+
+load_dotenv()
 
 app = Flask(__name__)
+
+app.url_map.strict_slashes = False
+app.config.from_object(Config)
 app.register_blueprint(api_views)
+db.init_app(app)
+
+if app.config['CS_ENV'] == 'test':
+    with app.app_context():
+        db.drop_all()
+
+with app.app_context():
+    db.create_all()
 
 @app.after_request
 def add_cors_headers(response):
@@ -22,18 +38,8 @@ app.config['SWAGGER'] = {
 }
 Swagger(app)
 
-@app.get('/status', strict_slashes=False)
-@token_required
-def logInStatus(email):
-    if storage.get_user_by_email(email):
-        return jsonify({}), 200
-    return jsonify({}), 404
-
-@app.get('/home', strict_slashes=False)
-@token_required
-def home(email):
-    """Return the homepage"""
-    return render_template('home.html')
+def test_client():
+    return app.test_client()
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port = app.config['PORT'])

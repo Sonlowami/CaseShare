@@ -3,3 +3,4 @@ caseenv
 .vscode
 .env
 pyvenv.cfg
+.secrets/
