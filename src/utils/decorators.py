@@ -23,11 +23,9 @@ def token_required(f):
             return f(user_email, *args, **kwargs)
         except AttributeError:
             response = make_response(jsonify({'error': 'token is missing'}), 403)
-            response.headers['location'] = 'http://0.0.0.0:5000/login'
             return response
         except Exception as e:
             print(e)
             response = make_response(jsonify({'error': 'invalid token'}), 403)
-            response.headers['location'] = 'http://0.0.0.0:5000/login'
             return response
     return decorator
