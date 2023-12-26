@@ -13,4 +13,5 @@ class Config:
     CS_MYSQL_PORT = getenv('CS_MYSQL_PORT')
     SECRET_KEY = getenv('SECRET_KEY')
     TESTING = getenv('TESTING')
+    PORT = getenv('PORT')
     SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{CS_MYSQL_USER}:{CS_MYSQL_PASS}@{CS_MYSQL_HOST}:{CS_MYSQL_PORT}/{CS_MYSQL_DB}'
