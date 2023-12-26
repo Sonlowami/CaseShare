@@ -33,7 +33,9 @@ def get_post(email, id):
 def get_posts_by_user(email, id):
     user = User.query.get(id)
     try:
-        posts = user.posts
+        offset = request.args.get('offset', 0)
+        limit = 20
+        posts = user.posts[offset * limit: offset * limit + limit]
         return jsonify([post.to_dict() for post in posts]), 200
     except AttributeError:
         return jsonify({'error': 'not found'}), 404
