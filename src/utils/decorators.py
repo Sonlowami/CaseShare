@@ -21,7 +21,8 @@ def token_required(f):
             data = jwt.decode(token, SECRET_KEY, algorithms='HS256')
             user_email = data['email']
             return f(user_email, *args, **kwargs)
-        except AttributeError:
+        except AttributeError as e:
+            print(e)
             response = make_response(jsonify({'error': 'token is missing'}), 403)
             return response
         except Exception as e:
