@@ -90,10 +90,14 @@ def delete_comment(email, id):
     """Delete a comment"""
     try:
         user = User.get_user_by_email(email)
-        comment = Comment.get(Comment, id)
+        comment = Comment.query.get(id)
         if comment.user_id == user.id:
-            Comment.delete(comment)
-            Comment.save()
+            comment.delete()
             return jsonify({}), 204
+        else:
+            return jsonify({'error': 'forbidden'}), 403
     except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404
+        return jsonify({'error': 'not found'}), 404
+    except Exception as e:
+        print(e)
+        return jsonify({'error': 'unknown error occurred'}), 500

@@ -347,3 +347,66 @@ class TestComments(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json, {'error': 'unknown error occurred'})
         mock_comment_q.get.assert_called_once_with('ax3934')
+
+    @patch('utils.decorators.jwt.decode')
+    @patch('models.User.get_user_by_email')
+    @patch('models.Comment.query')
+    def test_delete_comment_success(self, mock_comment_q, 
+                          mock_user_get, mock_decode):
+        """ Test if delete comment returns 200 if successful"""
+        mock_decode.return_value = {'email': 'abc@example.com'}
+        mock_user_get.return_value = MagicMock(id='6607')
+        mock_comment_q.get.return_value = MagicMock(id='ax3934',
+                                                    content='test',
+                                                    user_id='6607')
+        mock_delete = mock_comment_q.get.return_value.delete
+        mock_delete.return_value = True
+        response = self.client.delete('/api/v1/comments/ax3934')
+        self.assertEqual(response.status_code, 204)
+        mock_delete.assert_called_once()
+
+    @patch('utils.decorators.jwt.decode')
+    @patch('models.User.get_user_by_email')
+    @patch('models.Comment.query')
+    def test_delete_comment_doesnot_exist(self, mock_comment_q, 
+                          mock_user_get, mock_decode):
+        """ Test if delete comment returns 404 if comment doesnot exist"""
+        mock_decode.return_value = {'email': 'abc@example.com'}
+        mock_user_get.return_value = MagicMock(id='6607')
+        mock_comment_q.get.return_value = None
+        response = self.client.delete('/api/v1/comments/ax3934')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json, {'error': 'not found'})
+
+
+    @patch('utils.decorators.jwt.decode')
+    @patch('models.User.get_user_by_email')
+    @patch('models.Comment.query')
+    def test_delete_comment_user_doesnot_exist(self, mock_comment_q, 
+                          mock_user_get, mock_decode):
+        """ Test if delete comment returns 404 if user did not post
+        the comment"""
+        mock_decode.return_value = {'email': 'abc@example.com'}
+        mock_user_get.return_value = MagicMock(id='6609')
+        mock_comment_q.get.return_value = MagicMock(id='ax3934',
+                                                    content='test',
+                                                    user_id='6607')
+        response = self.client.delete('/api/v1/comments/ax3934')
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json, {'error': 'forbidden'})
+        
+    @patch('utils.decorators.jwt.decode')
+    @patch('models.User.get_user_by_email')
+    @patch('models.Comment.query')
+    def test_delete_comment_error_occurs(self, mock_comment_q, 
+                          mock_user_get, mock_decode):
+        """ Test if delete comment returns 500 when an internal error occurs"""
+        mock_decode.return_value = {'email': 'abc@example.com'}
+        mock_user_get.side_effect = Exception('test')
+        mock_comment_q.get.return_value = MagicMock(id='ax3934',
+                                                    content='test',
+                                                    user_id='6607')
+        response = self.client.delete('/api/v1/comments/ax3934')
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json, {'error': 'unknown error occurred'})
+    
