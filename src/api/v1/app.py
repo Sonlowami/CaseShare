@@ -7,11 +7,13 @@ from flasgger import Swagger
 from dotenv import load_dotenv
 from utils.database import db
 from utils.config import Config
+from flask_talisman import Talisman
 
 
 load_dotenv()
 
 app = Flask(__name__)
+talisman = Talisman(app)
 
 app.url_map.strict_slashes = False
 app.config.from_object(Config)
