@@ -13,7 +13,7 @@ from flask_talisman import Talisman
 load_dotenv()
 
 app = Flask(__name__)
-talisman = Talisman(app)
+#talisman = Talisman(app)
 
 app.url_map.strict_slashes = False
 app.config.from_object(Config)
