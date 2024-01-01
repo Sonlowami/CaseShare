@@ -9,7 +9,7 @@ from api.v1.views import api_views
 from datetime import timedelta, datetime
 from models.user import User
 from flasgger.utils import swag_from
-from utils.decorators import token_required
+from utils.helpers import avoid_danger_in_json
 
 SECRET_KEY = environ.get("SECRET_KEY")
 
@@ -18,7 +18,7 @@ SECRET_KEY = environ.get("SECRET_KEY")
 def login():
     """Authenticate a user if they already have an account"""
     try:
-        auth = request.get_json()
+        auth = avoid_danger_in_json(**request.get_json())
         if not auth or not auth.get('email') or not auth.get('password'):
             return jsonify({'error': 'You must provide email and password'}), 400
         user = User.get_user_by_email(auth.get('email'))
@@ -42,7 +42,7 @@ def login():
 def register():
     """Create a new user"""
     try:
-        user_data = request.get_json()
+        user_data = avoid_danger_in_json(**request.get_json())
         email = user_data['email']
         password = user_data['password']
         first_name = user_data['first_name']
@@ -66,7 +66,7 @@ def register():
 def forgot_password():
     """Send a password reset link to the user's email"""
     try:
-        data = request.get_json()
+        data = avoid_danger_in_json(**request.get_json())
         email = data.get('email')
         user = User.get_user_by_email(email)
         if user:
@@ -90,7 +90,7 @@ def reset_password(token):
     try:
         email = jwt.decode(token, SECRET_KEY, algorithms='HS256')['email']
         user = User.get_user_by_email(email)
-        new_password = request.get_json().get('new_password')
+        new_password = avoid_danger_in_json(**request.get_json()).get('new_password')
         user.__setattr__('password', new_password)
         user.save()
         return jsonify({

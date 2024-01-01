@@ -15,18 +15,14 @@ def token_required(f):
     """Checks if a token is passed by the front-end to the endpoint"""
     @wraps(f)
     def decorator(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        token = token.split(' ')[1].strip() if token else None
         try:
+            token = request.headers.get('Authorization')
+            token = token.split(' ')[1].strip() if token else None
             data = jwt.decode(token, SECRET_KEY, algorithms='HS256')
             user_email = data['email']
             return f(user_email, *args, **kwargs)
-        except AttributeError as e:
-            print(e)
-            response = make_response(jsonify({'error': 'token is missing'}), 403)
-            return response
         except Exception as e:
             print(e)
-            response = make_response(jsonify({'error': 'invalid token'}), 403)
+            response = make_response(jsonify({'error': 'invalid or missing token'}), 403)
             return response
     return decorator

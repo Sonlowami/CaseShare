@@ -9,6 +9,7 @@ from api.v1.views import api_views
 from models.user import User
 from flasgger.utils import swag_from
 from utils.decorators import token_required
+from utils.helpers import avoid_danger_in_json
 
 @api_views.get('/users', strict_slashes=False)
 @swag_from('documentation/users/get_users.yml', methods=['GET'])
@@ -16,7 +17,7 @@ from utils.decorators import token_required
 def get_users(email=None):
     """Retrieve all user from the database"""
     try:
-        page = int(request.args.get('page', 0))
+        page = request.args.get('page', 0, type=int)
         limit = 20
         offset = page * limit
         users = User.query.offset(offset).limit(limit).all()
@@ -42,20 +43,20 @@ def get_myself(email=None):
 @token_required
 def get_user(email, id):
     """Get a user by id"""
-    user = User.query.get(id)
     try:
+        user = User.query.get(id)
         return jsonify(user.to_dict()), 200
     except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404
+        return jsonify({'error': 'not found'}), 404
     
 @api_views.put('/users/me', strict_slashes=False)
 @swag_from('documentation/users/update_user.yml', methods=['PUT'])
 @token_required
 def update_myself(email):
     """Make changes to information stored under the same user"""
-    user = User.get_user_by_email(email)
     try:
-        data = request.get_json()
+        user = User.get_user_by_email(email)
+        data = avoid_danger_in_json(**request.get_json())
         user.title = data.get('title', user.title)
         user.first_name = data.get('first_name', user.first_name)
         user.last_name = data.get('last_name', user.last_name)
@@ -66,7 +67,7 @@ def update_myself(email):
         user.save()
         return jsonify(user.to_dict()), 200
     except AttributeError:
-        return jsonify({'error': 'Not Found'}), 404
+        return jsonify({'error': 'not found'}), 404
     except Exception:
         return jsonify({'error': 'not a JSON'}), 400
     
