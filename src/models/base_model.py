@@ -6,6 +6,7 @@ Contains class BaseModel
 from datetime import datetime
 from utils.database import db
 import uuid
+from utils.logger import logger
 
 time = "%Y-%m-%dT%H:%M:%S.%f"
 
@@ -46,7 +47,8 @@ class BaseModel:
             db.session.add(self)
             db.session.commit()
             return True
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             return False
         
     def update(self, **kwargs):
@@ -59,7 +61,8 @@ class BaseModel:
             db.session.add(self)
             db.session.commit()
             return True
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             return False
 
     def delete(self):
@@ -68,5 +71,6 @@ class BaseModel:
             db.session.delete(self)
             db.session.commit()
             return True
-        except Exception:
+        except Exception as e:
+            logger.exception(e)
             return False

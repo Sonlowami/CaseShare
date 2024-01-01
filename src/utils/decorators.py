@@ -7,6 +7,7 @@ from functools import wraps
 from flask import request, make_response
 from os import environ
 from flask import jsonify
+from utils.logger import logger
 
 SECRET_KEY = environ.get('SECRET_KEY')
 
@@ -20,9 +21,10 @@ def token_required(f):
             token = token.split(' ')[1].strip() if token else None
             data = jwt.decode(token, SECRET_KEY, algorithms='HS256')
             user_email = data['email']
+            logger.info('Token validated successfully')
             return f(user_email, *args, **kwargs)
         except Exception as e:
-            print(e)
+            logger.exception(e)
             response = make_response(jsonify({'error': 'invalid or missing token'}), 403)
             return response
     return decorator

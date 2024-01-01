@@ -5,3 +5,4 @@ caseenv
 pyvenv.cfg
 .secrets/
 .certs
+.logs

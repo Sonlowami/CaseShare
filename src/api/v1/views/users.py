@@ -10,6 +10,7 @@ from models.user import User
 from flasgger.utils import swag_from
 from utils.decorators import token_required
 from utils.helpers import avoid_danger_in_json
+from utils.logger import logger
 
 @api_views.get('/users', strict_slashes=False)
 @swag_from('documentation/users/get_users.yml', methods=['GET'])
@@ -21,10 +22,14 @@ def get_users(email=None):
         limit = 20
         offset = page * limit
         users = User.query.offset(offset).limit(limit).all()
-        return jsonify([user.to_dict() for user in users]), 200
-    except ValueError:
+        response = jsonify([user.to_dict() for user in users]), 200
+        logger.info(f'{len(users)} users retrieved successfully')
+        return response
+    except ValueError as e:
+        logger.exception(e)
         return jsonify({'error': 'Invalid page number'}), 400
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         return jsonify({'error': 'Not Found'}), 404
 
 @api_views.get('/users/me', strict_slashes=False)
@@ -34,8 +39,11 @@ def get_myself(email=None):
     try:
         if email:
             user = User.get_user_by_email(email)
-            return jsonify(user.to_dict()), 200
-    except AttributeError:
+            response = jsonify(user.to_dict()), 200
+            logger.info(f'User {user.id} retrieved successfully')
+            return response
+    except AttributeError as e:
+        logger.exception(e)
         return jsonify({'error': 'Not Found'}), 404
 
 @api_views.get('/users/<string:id>', strict_slashes=False)
@@ -45,8 +53,11 @@ def get_user(email, id):
     """Get a user by id"""
     try:
         user = User.query.get(id)
-        return jsonify(user.to_dict()), 200
-    except AttributeError:
+        response = jsonify(user.to_dict()), 200
+        logger.info(f'User {user.id}retrieved successfully')
+        return response
+    except AttributeError as e:
+        logger.exception(e)
         return jsonify({'error': 'not found'}), 404
     
 @api_views.put('/users/me', strict_slashes=False)
@@ -65,10 +76,13 @@ def update_myself(email):
         user.phone = data.get('phone', user.phone)
         user.age = data.get('age', user.age)
         user.save()
+        logger.info(f'User {user.id} updated successfully')
         return jsonify(user.to_dict()), 200
-    except AttributeError:
+    except AttributeError as e:
+        logger.exception(e)
         return jsonify({'error': 'not found'}), 404
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         return jsonify({'error': 'not a JSON'}), 400
     
 @api_views.put('/users/me/change_password', strict_slashes=False)
@@ -76,8 +90,8 @@ def update_myself(email):
 @token_required
 def change_password(email):
     """Change, not reset password"""
-    user = User.get_user_by_email(email)
     try:
+        user = User.get_user_by_email(email)
         data = request.get_json()
         old_password = data['old_password']
         new_password = data['new_password']
@@ -85,12 +99,16 @@ def change_password(email):
             # The user does know the old password
             user.__setattr__('password', new_password)
             user.save()
+            logger.info(f'Password changed successfully for user {user.id}')
             return jsonify({}), 200
         else:
+            logger.error(f'User {user.id}provided invalid old password')
             return jsonify({'error': 'invalid password'}), 400
     except AttributeError as e:
+        logger.exception(e)
         return jsonify({'error': 'not found'}), 404
-    except Exception:
+    except Exception as e:
+        logger.exception(e)
         return jsonify({'error': 'not a JSON'}), 400
 
 
@@ -98,9 +116,11 @@ def change_password(email):
 @token_required
 def delete_user(email):
     """Delete a user's account"""
-    user = User.get_user_by_email(email)
     try:
+        user = User.get_user_by_email(email)
         user.delete()
+        logger.info(f'User {user.id} deleted successfully')
         return jsonify({}), 204
-    except AttributeError:
+    except AttributeError as e:
+        logger.exception(e)
         return jsonify({'error': 'Not Found'}), 404
