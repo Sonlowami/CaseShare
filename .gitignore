@@ -4,3 +4,4 @@ caseenv
 .env
 pyvenv.cfg
 .secrets/
+.certs

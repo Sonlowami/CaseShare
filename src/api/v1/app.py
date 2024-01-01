@@ -8,12 +8,14 @@ from dotenv import load_dotenv
 from utils.database import db
 from utils.config import Config
 from flask_talisman import Talisman
+from flask_cors import CORS
 
 
 load_dotenv()
 
 app = Flask(__name__)
-#talisman = Talisman(app)
+talisman = Talisman(app, force_https=False)
+#CORS(app)
 
 app.url_map.strict_slashes = False
 app.config.from_object(Config)
@@ -41,7 +43,10 @@ app.config['SWAGGER'] = {
 Swagger(app)
 
 def test_client():
-    return app.test_client()
+    client = app.test_client()
+    client.environ_base['wsgi.url_scheme'] = 'https'
+    return client
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port = app.config['PORT'])
+    app.run(host="0.0.0.0", port = app.config['PORT'],
+            ssl_context=(app.config['CERT'], app.config['KEY']))
