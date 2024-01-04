@@ -8,14 +8,20 @@ from dotenv import load_dotenv
 from utils.database import db
 from utils.config import Config
 from flask_talisman import Talisman
+from flask_migrate import Migrate
 from flask_cors import CORS
 from utils.logger import logger
+from flask_socketio import SocketIO
+import eventlet
+import eventlet.wsgi
 
 
 load_dotenv()
 
 app = Flask(__name__)
 talisman = Talisman(app, force_https=False)
+socketio = SocketIO(app, logger=True, engineio_logger=True)
+migrate = Migrate(app, db)
 #CORS(app)
 
 app.url_map.strict_slashes = False
@@ -56,5 +62,6 @@ def test_client():
 
 if __name__ == '__main__':
     logger.info('Starting app...')
-    app.run(host="0.0.0.0", port = app.config['PORT'],
-            ssl_context=(app.config['CERT'], app.config['KEY']))
+    socket = eventlet.listen(('127.0.0.1', app.config['PORT']))
+    ssl_socket = eventlet.wrap_ssl(socket, certfile=app.config['CERT'], keyfile=app.config['KEY'], server_side=True)
+    eventlet.wsgi.server(ssl_socket, app)
