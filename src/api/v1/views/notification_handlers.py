@@ -7,71 +7,81 @@ from utils.notifications import (get_notifications,
                                  delete_all_notifications,
                                  get_unread_count) 
 
-class NotificationNameSpace(Namespace):
-    """Define event handlers for notification namespace"""
+@socketio.on('disconnect')
+def disconnect():
+    """Handle disconnection"""
+    emit('disconnected', 'You are disconnected')
 
-    def on_connect(self):
-        """Handle connection"""
-        emit('connected', 'You are connected', namespace='/notifications')
 
-    def on_disconnect(self):
-        """Handle disconnection"""
-        emit('disconnected', 'You are disconnected', namespace='/notifications')
+@socketio.on('get_notifications')
+def get_user_notifications(data):
+    """Handle get notifications"""
+    try:
+        user_id = data['user_id']
+        get_notifications(user_id)
+    except Exception as e:
+        logger.exception(e)
+        emit('error', 'Invalid request')
 
-    def on_get_notifications(self, data):
-        """Handle get notifications"""
-        try:
-            user_id = data['user_id']
-            get_notifications(user_id)
-        except Exception as e:
-            logger.exception(e)
-            emit('error', 'Invalid request', namespace='/notifications')
+@socketio.on('mark_as_read')
+def mark_as_read(data):
+    """Handle mark as read"""
+    try:
+        user_id = data['user_id']
+        notification_id = data['notification_id']
+        mark_as_read(user_id, notification_id)
+    except Exception as e:
+        logger.exception(e)
+        emit('error', 'Invalid request')
 
-    def on_mark_as_read(self, data):
-        """Handle mark as read"""
-        try:
-            user_id = data['user_id']
-            notification_id = data['notification_id']
-            mark_as_read(user_id, notification_id)
-        except Exception as e:
-            logger.exception(e)
-            emit('error', 'Invalid request', namespace='/notifications')
 
-    def on_mark_all_as_read(self, data):
-        """Handle mark all as read"""
-        try:
-            user_id = data['user_id']
-            mark_all_as_read(user_id)
-        except Exception as e:
-            logger.exception(e)
-            emit('error', 'Invalid request', namespace='/notifications')
+@socketio.on('mark_all_as_read')
+def mark_all_as_read(data):
+    """Handle mark all as read"""
+    try:
+        user_id = data['user_id']
+        mark_all_as_read(user_id)
+    except Exception as e:
+        logger.exception(e)
+        emit('error', 'Invalid request')
 
-    def on_delete_notification(self, data):
-        """Handle delete notification"""
-        try:
-            user_id = data['user_id']
-            notification_id = data['notification_id']
-            delete_notification(user_id, notification_id)
-        except Exception as e:
-            logger.exception(e)
-            emit('error', 'Invalid request', namespace='/notifications')
 
-    def on_delete_all_notifications(self, data):
-        """Handle delete all notifications"""
-        try:
-            user_id = data['user_id']
-            delete_all_notifications(user_id)
-        except Exception as e:
-            logger.exception(e)
-            emit('error', 'Invalid request', namespace='/notifications')
+@socketio.on('delete_notification')
+def delete_notification(data):
+    """Handle delete notification"""
+    try:
+        user_id = data['user_id']
+        notification_id = data['notification_id']
+        delete_notification(user_id, notification_id)
+    except Exception as e:
+        logger.exception(e)
+        emit('error', 'Invalid request')
 
-    def on_get_unread_count(self, data):
-        """Handle get unread count"""
-        try:
-            user_id = data['user_id']
-            get_unread_count(user_id)
-        except Exception as e:
-            logger.exception(e)
-            emit('error', 'Invalid request', namespace='/notifications')
+@socketio.on('delete_all_notifications')
+def delete_all_notifications(data):
+    """Handle delete all notifications"""
+    try:
+        user_id = data['user_id']
+        delete_all_notifications(user_id)
+    except Exception as e:
+        logger.exception(e)
+        emit('error', 'Invalid request')
 
-socketio.on_namespace(NotificationNameSpace('/notifications'))
+
+@socketio.on('get_unread_count')
+def get_unread_count(data):
+    """Handle get unread count"""
+    try:
+        user_id = data['user_id']
+        get_unread_count(user_id)
+    except Exception as e:
+        logger.exception(e)
+        emit('error', 'Invalid request')
+
+@socketio.on('connect')
+def connect(self):
+    """Handle connection"""
+    try:
+        emit('connect', 'You are connected')
+    except Exception as e:
+        logger.exception(e)

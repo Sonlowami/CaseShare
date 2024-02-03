@@ -60,6 +60,8 @@ def test_client():
     client.environ_base['wsgi.url_scheme'] = 'https'
     return client
 
+import api.v1.views.notification_handlers
+
 if __name__ == '__main__':
     logger.info('Starting app...')
     socket = eventlet.listen(('127.0.0.1', app.config['PORT']))
