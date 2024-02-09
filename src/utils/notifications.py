@@ -14,7 +14,7 @@ def create_notification(user_id, message, link):
         emit('new_notification', notification.to_dict())
     except ValueError as e:
         logger.exception(e)
-        emit('new_notification', {'error': 'Invalid user ID'})
+        emit('new_notification', {'error': 'invalid user ID'})
     except Exception as e:
         logger.exception(e)
         emit('new_notification', {'error': 'Something went wrong'})
@@ -28,7 +28,7 @@ def get_notifications(user_id):
         emit('all_notifications', [n.to_dict() for n in notifications])
     except ValueError as e:
         logger.exception(e)
-        emit('error', {'error': 'Invalid user ID'}
+        emit('error', {'error': 'invalid user ID'}
              )
     except Exception as e:
         logger.exception(e)
@@ -47,13 +47,15 @@ def mark_as_read(user_id, notification_id):
             notification.save()
             emit('read_notification', notification.to_dict(),
                 )
+        else:
+            raise ValueError(f'Unpermitted action by user {user_id} on notification {notification_id}')
     except ValueError as e:
         logger.exception(e)
-        emit('read_notification', {'error': 'Invalid user ID'}
+        emit('error', {'error': 'invalid user ID'}
              )
     except Exception as e:
         logger.exception(e)
-        emit('read_notification', {'error': 'Something went wrong'}
+        emit('error', {'error': 'Something went wrong'}
              )
 
         
@@ -65,14 +67,14 @@ def mark_all_as_read(user_id):
         for notification in notifications:
             notification.read = True
             notification.save()
-        emit('all_read', )
+        emit('all_read', [notif.to_dict() for notif in notifications])
     except ValueError as e:
         logger.exception(e)
-        emit('all_read', {'error': 'Invalid user ID'}
+        emit('error', {'error': 'invalid user ID'}
              )
     except Exception as e:
         logger.exception(e)
-        emit('all_read', {'error': 'Something went wrong'}
+        emit('error', {'error': 'Something went wrong'}
              )
 
 
@@ -84,15 +86,18 @@ def delete_notification(user_id, notification_id):
         notification = Notification.query.get(notification_id)
         if notification.user_id == user_id:
             notification.delete()
-            emit('delete_notification', notification_id,
+            emit('notification_deleted', notification_id,
                  )
+        else:
+            raise ValueError(f'Unpermitted action by user {user_id} on notification {notification_id}')
     except ValueError as e:
         logger.exception(e)
-        emit('delete_notification', {'error': 'Invalid user ID'}
+        emit('error', {'error': 'invalid user ID'}
              )
     except Exception as e:
+        print('error', e)
         logger.exception(e)
-        emit('delete_notification', {'error': 'Something went wrong'}
+        emit('error', {'error': 'Something went wrong'}
              )
 
     
@@ -106,11 +111,11 @@ def delete_all_notifications(user_id):
         emit('all_deleted', )
     except ValueError as e:
         logger.exception(e)
-        emit('all_deleted', {'error': 'Invalid user ID'}
+        emit('error', {'error': 'invalid user ID'}
              )
     except Exception as e:
         logger.exception(e)
-        emit('all_deleted', {'error': 'Something went wrong'}
+        emit('error', {'error': 'Something went wrong'}
              )
         
 
@@ -119,12 +124,12 @@ def get_unread_count(user_id):
     try:
         is_uuid(user_id)
         notifications = Notification.query.filter_by(user_id=user_id, read=False).all()
-        emit('unread_count', len(notifications), )
+        emit('unread_count', len(notifications) )
     except ValueError as e:
         logger.exception(e)
-        emit('unread_count', {'error': 'Invalid user ID'}
+        emit('error', {'error': 'invalid user ID'}
              )
     except Exception as e:
         logger.exception(e)
-        emit('unread_count', {'error': 'Something went wrong'}
+        emit('error', {'error': 'Something went wrong'}
              )

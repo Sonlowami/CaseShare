@@ -21,10 +21,10 @@ def get_user_notifications(data):
         get_notifications(user_id)
     except Exception as e:
         logger.exception(e)
-        emit('error', 'Invalid request')
+        emit('error', {'error': 'invalid request'})
 
 @socketio.on('mark_as_read')
-def mark_as_read(data):
+def mark_notification_as_read(data):
     """Handle mark as read"""
     try:
         user_id = data['user_id']
@@ -32,22 +32,22 @@ def mark_as_read(data):
         mark_as_read(user_id, notification_id)
     except Exception as e:
         logger.exception(e)
-        emit('error', 'Invalid request')
+        emit('error', {'error': 'invalid request'})
 
 
 @socketio.on('mark_all_as_read')
-def mark_all_as_read(data):
+def mark_all_notifications_as_read(data):
     """Handle mark all as read"""
     try:
         user_id = data['user_id']
         mark_all_as_read(user_id)
     except Exception as e:
         logger.exception(e)
-        emit('error', 'Invalid request')
+        emit('error', {'error': 'invalid request'})
 
 
 @socketio.on('delete_notification')
-def delete_notification(data):
+def delete_one_notification(data):
     """Handle delete notification"""
     try:
         user_id = data['user_id']
@@ -55,28 +55,28 @@ def delete_notification(data):
         delete_notification(user_id, notification_id)
     except Exception as e:
         logger.exception(e)
-        emit('error', 'Invalid request')
+        emit('error', {'error': 'invalid request'})
 
 @socketio.on('delete_all_notifications')
-def delete_all_notifications(data):
+def delete_all(data):
     """Handle delete all notifications"""
     try:
         user_id = data['user_id']
         delete_all_notifications(user_id)
     except Exception as e:
         logger.exception(e)
-        emit('error', 'Invalid request')
+        emit('error', {'error': 'invalid request'})
 
 
 @socketio.on('get_unread_count')
-def get_unread_count(data):
+def get_unread_number(data):
     """Handle get unread count"""
     try:
         user_id = data['user_id']
         get_unread_count(user_id)
     except Exception as e:
         logger.exception(e)
-        emit('error', 'Invalid request')
+        emit('error', {'error': 'invalid request'})
 
 @socketio.on('connect')
 def connect(self):
