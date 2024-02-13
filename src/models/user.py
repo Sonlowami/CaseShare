@@ -27,6 +27,7 @@ class User(BaseModel, db.Model):
     likes = db.relationship("Like", backref="user", cascade="all, delete, delete-orphan")
     comments = db.relationship("Comment", backref="user", cascade="all, delete, delete-orphan")
     documents = db.relationship("Document", backref="user", cascade="all, delete, delete-orphan")
+    notifications = db.relationship("Notification", backref="user", cascade="all, delete, delete-orphan")
 
     def __setattr__(self, __name: str, __value: Any):
         """Set attributes of the user"""
